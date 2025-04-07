@@ -3,8 +3,10 @@ var Schema = mongoose.Schema;
 var bcrypt = require('bcrypt-nodejs');
 
 mongoose.Promise = global.Promise;
+require('dotenv').config();
 
-//mongoose.connect(process.env.DB, { useNewUrlParser: true });
+mongoose.connect(process.env.DB, { useNewUrlParser: true });
+
 try {
     mongoose.connect( process.env.DB, {useNewUrlParser: true, useUnifiedTopology: true}, () =>
         console.log("connected"));

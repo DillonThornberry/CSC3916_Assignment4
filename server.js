@@ -15,6 +15,8 @@ var User = require('./Users');
 var Movie = require('./Movies');
 var Review = require('./Reviews');
 
+require('dotenv').config();
+
 var app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -64,28 +66,115 @@ router.post('/signup', function(req, res) {
     }
 });
 
-router.post('/signin', function (req, res) {
-    var userNew = new User();
-    userNew.username = req.body.username;
-    userNew.password = req.body.password;
+router.post('/signup', async (req, res) => { // Use async/await
+    if (!req.body.username || !req.body.password) {
+      return res.status(400).json({ success: false, msg: 'Please include both username and password to signup.' }); // 400 Bad Request
+    }
+  
+    try {
+      const user = new User({ // Create user directly with the data
+        name: req.body.name,
+        username: req.body.username,
+        password: req.body.password,
+      });
+  
+      await user.save(); // Use await with user.save()
+  
+      res.status(201).json({ success: true, msg: 'Successfully created new user.' }); // 201 Created
+    } catch (err) {
+      if (err.code === 11000) { // Strict equality check (===)
+        return res.status(409).json({ success: false, message: 'A user with that username already exists.' }); // 409 Conflict
+      } else {
+        console.error(err); // Log the error for debugging
+        return res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' }); // 500 Internal Server Error
+      }
+    }
+  });
+  
+  
+  router.post('/signin', async (req, res) => { // Use async/await
+    try {
+      const user = await User.findOne({ username: req.body.username }).select('name username password');
+  
+      if (!user) {
+        return res.status(401).json({ success: false, msg: 'Authentication failed. User not found.' }); // 401 Unauthorized
+      }
+  
+      const isMatch = await user.comparePassword(req.body.password); // Use await
+  
+      if (isMatch) {
+        const userToken = { id: user._id, username: user.username }; // Use user._id (standard Mongoose)
+        const token = jwt.sign(userToken, process.env.SECRET_KEY, { expiresIn: '1h' }); // Add expiry to the token (e.g., 1 hour)
+        res.json({ success: true, token: 'JWT ' + token });
+      } else {
+        res.status(401).json({ success: false, msg: 'Authentication failed. Incorrect password.' }); // 401 Unauthorized
+      }
+    } catch (err) {
+      console.error(err); // Log the error
+      res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' }); // 500 Internal Server Error
+    }
+  });
 
-    User.findOne({ username: userNew.username }).select('name username password').exec(function(err, user) {
-        if (err) {
-            res.send(err);
+router.route('/movies')
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+
+        try {
+            const movies = await Movie.find({}); // Use await with Movie.find()
+
+            if (!movies) {
+                return res.status(404).json({ success: false, message: 'No movies found.' }); // 404 Not Found
+            }
+
+            res.json({ success: true, movies: movies });
         }
-
-        user.comparePassword(userNew.password, function(isMatch) {
-            if (isMatch) {
-                var userToken = { id: user.id, username: user.username };
-                var token = jwt.sign(userToken, process.env.SECRET_KEY);
-                res.json ({success: true, token: 'JWT ' + token});
-            }
-            else {
-                res.status(401).send({success: false, msg: 'Authentication failed.'});
-            }
-        })
+        catch (err) {
+            console.error(err); // Log the error
+            res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' }); // 500 Internal Server Error
+        }
+     
     })
-});
+    .post(authJwtController.isAuthenticated, async (req, res) => {
+        return res.status(500).json({ success: false, message: 'POST request not supported' });
+    })
+
+    .put(authJwtController.isAuthenticated, async (req, res) => {
+      return res.status(500).json({ success: false, message: 'PUT request not supported' })
+    })
+    
+    .delete(authJwtController.isAuthenticated, async (req, res) => {
+      return res.status(500).json({ success: false, message: 'DELETE request not supported' });
+  });
+
+
+  router.route('/reviews')
+    .get(authJwtController.isAuthenticated, async (req, res) => {
+
+        try {
+            const reviews = await Review.find({}); // Use await with Movie.find()
+
+            if (!reviews) {
+                return res.status(404).json({ success: false, message: 'No reviews found.' }); // 404 Not Found
+            }
+
+            res.json({ success: true, reviews: reviews });
+        }
+        catch (err) {
+            console.error(err); // Log the error
+            res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' }); // 500 Internal Server Error
+        }
+     
+    })
+    .post(authJwtController.isAuthenticated, async (req, res) => {
+        return res.status(500).json({ success: false, message: 'Review Created!' });
+    })
+
+    .put(authJwtController.isAuthenticated, async (req, res) => {
+      return res.status(500).json({ success: false, message: 'PUT request not supported' })
+    })
+    
+    .delete(authJwtController.isAuthenticated, async (req, res) => {
+      return res.status(500).json({ success: false, message: 'DELETE request not supported' });
+  });
 
 app.use('/', router);
 app.listen(process.env.PORT || 8080);

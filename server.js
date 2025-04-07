@@ -150,7 +150,32 @@ router.route('/movies')
     .get(authJwtController.isAuthenticated, async (req, res) => {
 
         try {
-            const reviews = await Review.find({}); // Use await with Movie.find()
+            var reviews = null;
+            if (req.query.reviews){
+                reviews = Review.aggregate([
+                    {
+                      $match: { _id: _movieId } 
+                    },
+                    {
+                      $lookup: {
+                        from: "movies", // name of the foreign collection
+                        localField: "_movieId", // field in the orders collection
+                        foreignField: "_id", // field in the items collection
+                        as: "movieDetails" // output array where the joined items will be placed
+                      }
+                    }
+                  ]).exec(function(err, result) {
+                    if (err) {
+                      // handle error
+                    } else {
+                      console.log(result);
+                    }
+                  });
+            }
+            else {
+                reviews = await Review.find({}); // Use await with Movie.find()
+            }
+            
 
             if (!reviews) {
                 return res.status(404).json({ success: false, message: 'No reviews found.' }); // 404 Not Found
@@ -165,6 +190,17 @@ router.route('/movies')
      
     })
     .post(authJwtController.isAuthenticated, async (req, res) => {
+        try {
+            const json = getJSONObjectForMovieRequirement(req);
+            review = new Review(json.body);
+            await review.save()
+            
+        }
+        catch (err) {
+            console.error(err); // Log the error
+            res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' }); // 500 Internal Server Error
+        }
+
         return res.status(500).json({ success: false, message: 'Review Created!' });
     })
 

@@ -7,7 +7,7 @@ mongoose.connect(process.env.DB)
         .then(() => console.log('MongoDB connected!'))
         .catch(err => console.error('MongoDB connection error:', err));
 
-// Movie schema
+// Review schema
 var ReviewSchema = new Schema({
     movieId: { type: mongoose.Schema.Types.ObjectId, ref: 'Movie' },
     username: String,

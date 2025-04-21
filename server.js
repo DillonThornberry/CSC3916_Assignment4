@@ -137,9 +137,14 @@ router.route('/movies')
                   }
                 }
               ]);
-
-            console.log("moviesWithReviews", moviesWithReviews.map(m => m.movieDetails))
-            return res.json({ success: true, movies: moviesWithReviews });
+            console.log("moviesWithReviews before sort", moviesWithReviews)
+            moviesWithReviews.forEach(m => {
+              avgRating = m.movieDetails.reduce((acc, review) => acc + review.rating, 0) / m.movieDetails.length;
+              m.avgRating = avgRating;
+            });
+           const sorted =  moviesWithReviews.sort((a, b) => b.avgRating - a.avgRating)
+            console.log("moviesWithReviews after sort", sorted)
+            return res.json({ success: true, movies: sorted });
         }
         else {
             movies = await Movie.find({}); // Use await with Movie.find()

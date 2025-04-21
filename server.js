@@ -174,7 +174,8 @@ router.route('/movies')
       return res.status(500).json({ success: false, message: 'DELETE request not supported' });
   });
 
-    router.get('/movies/:movie', async (req, res) => {
+    router.route('/movies/:movie')
+    .get(authJwtController.isAuthenticated, async (req, res) => {
       try {
         var movie = await Movie.findById(req.params.movie).lean();
         movieId = req.params.movie;

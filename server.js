@@ -137,6 +137,8 @@ router.route('/movies')
                   }
                 }
               ]);
+
+            console.log("moviesWithReviews", moviesWithReviews.map(m => m.movieDetails))
             return res.json({ success: true, movies: moviesWithReviews });
         }
         else {
@@ -212,7 +214,7 @@ router.route('/movies')
      
     })
     .post(authJwtController.isAuthenticated, async (req, res) => {
-        console.log("POST request to /reviews");
+        console.log(req.body);
         try {
             const json = getJSONObjectForMovieRequirement(req);
             review = new Review(json.body);

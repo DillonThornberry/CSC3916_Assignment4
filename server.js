@@ -167,6 +167,16 @@ router.route('/movies')
       return res.status(500).json({ success: false, message: 'DELETE request not supported' });
   });
 
+    router.get('/movies/:movie', async (req, res) => {
+      try {
+        const movie = await Movie.findById(req.params.movie);
+        if (!movie) return res.status(404).json({ error: 'Movie not found' });
+        res.json(movie);
+      } catch (err) {
+        res.status(400).json({ error: 'Invalid ID format' });
+      }
+    });
+
 
   router.route('/reviews')
     .get(authJwtController.isAuthenticated, async (req, res) => {

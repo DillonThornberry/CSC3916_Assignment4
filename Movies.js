@@ -38,27 +38,27 @@ const movie1 = new Movie({ title: 'The Dark Knight', releaseDate: 2008, genre: '
 const movie2 = new Movie({ title: 'Inception', releaseDate: 2010, genre: 'Science Fiction', actors: [{ actorName: 'Leonardo DiCaprio', characterName: 'Cobb' }] });
 const movie3 = new Movie({ title: 'The Matrix', releaseDate: 1999, genre: 'Science Fiction', actors: [{ actorName: 'Keanu Reeves', characterName: 'Neo' }] });
 const movie4 = new Movie({ title: 'The Shawshank Redemption', releaseDate: 1994, genre: 'Drama', actors: [{ actorName: 'Tim Robbins', characterName: 'Andy Dufresne' }] });
-const movie5 = new Movie({ title: 'The Godfather', releaseDate: 1972, genre: 'Drama', actors: [{ actorName: 'Marlon Brando', characterName: 'Vito Corleone' }] });
+const movie5 = new Movie({ title: 'The Goodfather', releaseDate: 1972, genre: 'Drama', actors: [{ actorName: 'Marlon Brando', characterName: 'Vito Corleone' }] });
 
 
-movie1.save()
-  .then(doc => console.log("Movie saved:", doc))
-  .catch(err => console.error("Error saving movie:", err));
+// movie1.save()
+//   .then(doc => console.log("Movie saved:", doc))
+//   .catch(err => console.error("Error saving movie:", err));
 
-movie2.save()
-  .then(doc => console.log("Movie saved:", doc))
-  .catch(err => console.error("Error saving movie:", err));
+// movie2.save()
+//   .then(doc => console.log("Movie saved:", doc))
+//   .catch(err => console.error("Error saving movie:", err));
 
-movie3.save() 
-  .then(doc => console.log("Movie saved:", doc))
-  .catch(err => console.error("Error saving movie:", err));
+// movie3.save() 
+//   .then(doc => console.log("Movie saved:", doc))
+//   .catch(err => console.error("Error saving movie:", err));
 
-movie4.save()
-  .then(doc => console.log("Movie saved:", doc))
-  .catch(err => console.error("Error saving movie:", err));
+// movie4.save()
+//   .then(doc => console.log("Movie saved:", doc))
+//   .catch(err => console.error("Error saving movie:", err));
 
-movie5.save()
-  .then(doc => console.log("Movie saved:", doc))
-  .catch(err => console.error("Error saving movie:", err));
+// movie5.save()
+//   .then(doc => console.log("Movie saved:", doc))
+//   .catch(err => console.error("Error saving movie:", err));
 
 module.exports = mongoose.model('Movie', MovieSchema);

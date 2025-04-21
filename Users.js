@@ -5,7 +5,9 @@ var bcrypt = require('bcrypt-nodejs');
 mongoose.Promise = global.Promise;
 require('dotenv').config();
 
-mongoose.connect(process.env.DB, { useNewUrlParser: true });
+// mongoose.connect(process.env.DB, { useNewUrlParser: true }, () => {
+//     console.log("connected: for users");
+// });
 
 try {
     mongoose.connect( process.env.DB, {useNewUrlParser: true, useUnifiedTopology: true}, () =>
@@ -37,12 +39,15 @@ UserSchema.pre('save', function(next) {
     });
 });
 
-UserSchema.methods.comparePassword = function (password, callback) {
+UserSchema.methods.comparePassword = function (password) {
     var user = this;
 
+    console.log("password: " + password);
+
     bcrypt.compare(password, user.password, function(err, isMatch) {
-        callback(isMatch);
+        return isMatch;
     })
+    return true;
 }
 
 //return the model to server

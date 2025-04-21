@@ -169,14 +169,26 @@ router.route('/movies')
 
     router.get('/movies/:movie', async (req, res) => {
       try {
-        const movie = await Movie.findById(req.params.movie);
+        var movie = await Movie.findById(req.params.movie).lean();
+        movieId = req.params.movie;
+
+        console.log(req.query)
+
+        if (req.query.reviews){
+          console.log("Reviews requested for movie");
+          var reviews = await Review.find({ movieId });
+          movie.reviews = reviews;
+          console.log("movie with reviews", movie)
+          console.log("reviews", reviews)
+          return res.json(movie);
+          //return res.json({ success: true, movies: moviesWithReviews });
+        }
         if (!movie) return res.status(404).json({ error: 'Movie not found' });
         res.json(movie);
       } catch (err) {
         res.status(400).json({ error: 'Invalid ID format' });
       }
     });
-
 
   router.route('/reviews')
     .get(authJwtController.isAuthenticated, async (req, res) => {
